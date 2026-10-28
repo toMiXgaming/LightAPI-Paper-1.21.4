@@ -39,12 +39,17 @@ import ru.beykerykt.minecraft.lightapi.common.internal.service.IBackgroundServic
  */
 public abstract class ScheduledLightEngineImpl implements IScheduledLightEngine {
 
+    private static final java.util.Comparator<Request> REQUEST_ORDER = (o1, o2) -> {
+        int byPriority = Integer.compare(o2.getPriority(), o1.getPriority());
+        return byPriority != 0 ? byPriority : Long.compare(o1.getSequence(), o2.getSequence());
+    };
+
     protected final Queue<Request> lightQueue = new PriorityBlockingQueue<>(20,
-            (o1, o2) -> o2.getPriority() - o1.getPriority());
+            REQUEST_ORDER);
     protected final Queue<Request> relightQueue = new PriorityBlockingQueue<>(20,
-            (o1, o2) -> o2.getPriority() - o1.getPriority());
+            REQUEST_ORDER);
     protected final Queue<Request> sendQueue = new PriorityBlockingQueue<>(20,
-            (o1, o2) -> o2.getPriority() - o1.getPriority());
+            REQUEST_ORDER);
     private final IBackgroundService mBackgroundService;
     private final long TICK_MS = 50;
     private final IPlatformImpl mPlatformImpl;

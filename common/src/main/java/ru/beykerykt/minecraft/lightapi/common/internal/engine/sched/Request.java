@@ -31,6 +31,7 @@ public class Request implements Comparable<Request> {
     public static final int HIGH_PRIORITY = 10;
     public static final int DEFAULT_PRIORITY = 5;
     public static final int LOW_PRIORITY = 0;
+    private static final java.util.concurrent.atomic.AtomicLong SEQUENCE = new java.util.concurrent.atomic.AtomicLong();
 
     private final String mWorldName;
     private final int mBlockX;
@@ -42,6 +43,8 @@ public class Request implements Comparable<Request> {
     private final ICallback mCallback;
     private int mRequestFlags;
     private int mPriority;
+    // creation order, keeps requests with equal priority in FIFO order
+    private final long mSequence = SEQUENCE.getAndIncrement();
 
     public Request(int priority, int requestFlags, String worldName, int blockX, int blockY, int blockZ,
             int oldLightLevel, int lightLevel, int lightFlags, ICallback callback) {
@@ -55,6 +58,10 @@ public class Request implements Comparable<Request> {
         this.mLightLevel = lightLevel;
         this.mLightFlags = lightFlags;
         this.mCallback = callback;
+    }
+
+    public long getSequence() {
+        return mSequence;
     }
 
     public int getPriority() {
